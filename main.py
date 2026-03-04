@@ -1,0 +1,86 @@
+import logging
+from logging.config import dictConfig
+from pathlib import Path
+
+from infra.logging.config import Logging_Config
+from infra.logging.contexto import generate_correlation_id, correlation_id
+
+from services.token_service import TokenService
+
+from services.bling.credenciais.tokens.providers.bling_provider import BlingProvider
+from services.bling.pedidos.provider.provider_pedidos import PedidosProviderBling
+from adapters.bling.bling_credenciais import Refresh
+from adapters.bling.bling_pedidos import GetBling
+from infra.repositorio_bling import CredenciaisDB_bling, DadosGerais
+
+from services.mercado_livre.tokens.ml_provider import MLProvider
+from services.mercado_livre.pedidos.service_mercadolivre_pedidos import ExtraiCustoMercadoLivre
+from adapters.mercado_livre.mercado_livre_credenciais import RefreshML
+from adapters.mercado_livre.mercado_livre_pedidos import GetMercadoLivre
+from infra.repositorioMercadoLivre.repositorio_mercadolivre import CredenciaisMercadoLivre
+
+from infra.repositorio_pedidos import InsertPedidos
+from infra.repositorio_produtos_pedido import InsertPedidosProdutos
+"""
+
+Comando para inicar o docker no linux
+sudo systemctl start docker
+
+"""
+
+def main():
+    '''
+    Iniciando a aplicação, estamos configurando os objetos que serão necessário para seguir com a aplicação
+    Esta def não solicita nenhum atributo pois é ela quem fará as requisições a outros pacotes do app
+    '''
+    Path ('logs').mkdir(exist_ok=True)
+    cid = generate_correlation_id()
+    correlation_id.set(cid)
+    dictConfig(Logging_Config)
+    
+    logger = logging.getLogger('lucroadmin.main')
+    logger.info('Iniciando o fluxo principal da aplicação')
+    
+    #Repositórios 
+    repo_credent_bling = CredenciaisDB_bling()
+    repo_pedidos_bling = DadosGerais()
+    repo_credent_ML = CredenciaisMercadoLivre()
+    repo_pedidos = InsertPedidos()
+    repo_pedidos_produtos = InsertPedidosProdutos()
+
+    #Adapters
+    adapter_refresh_bling = Refresh()
+    adapt_pedidos_bling = GetBling()
+    adapt_refresh_ML = RefreshML()
+    adapt_pedidos_ML = GetMercadoLivre()
+
+    #Providers
+    bling_provider_credenciais = BlingProvider(repo_credent_bling, adapter_refresh_bling)
+    mercadolivre_provider_credenciais = MLProvider(repo_credent_ML, adapt_refresh_ML)
+
+
+    #Token Services
+    token_service_bling = TokenService(bling_provider_credenciais)
+    token_service_ML = TokenService(mercadolivre_provider_credenciais)
+    '''Aqui e¨ chamando o metodo valida_access que esta dentro da classe TokenService,
+    você pode observar que eu estou usando o objeto token_service_bling para chamar o metodo'''
+    #Bling    
+    access_token_bling = token_service_bling.valida_access()
+    
+    #Mercado Livre
+    access_token_ML = token_service_ML.valida_access()
+
+    mercadolivre_pedidos = ExtraiCustoMercadoLivre(access_token=access_token_ML, adapt_pedido=adapt_pedidos_ML)
+    bling_provider_pedidos = PedidosProviderBling(adapt_pedidos_bling, repo_pedidos_bling, access_token_bling)
+
+    pedidos = bling_provider_pedidos.processa_ids()
+
+    custos_ml = mercadolivre_pedidos.extraindo_custos(pedidos=pedidos)
+    
+    insert_pedidos = repo_pedidos.insert_pedidos(custos_ml.pedidos)
+    
+    insert_pedidos_produtos = repo_pedidos_produtos.insert_pedidos_produtos(custos_ml.produtos)
+
+    logger.info('Fluxo finalizado')
+if __name__ == '__main__': 
+    main()

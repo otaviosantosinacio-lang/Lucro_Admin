@@ -1,0 +1,37 @@
+lucro_admin/
+│
+├── core/                # Domínio (regras de negócio)
+│   ├── entities/
+│   │   └── pedido.py
+│   ├── value_objects/
+│   │   └── imposto.py
+│   ├── interfaces/
+│   │   ├── marketplace_port.py
+│   │   ├── erp_port.py
+│   │   └── imposto_calculator.py
+│
+├── services/            # Orquestração dos casos de uso
+│   ├── processar_pedido.py
+│   └── sincronizar_vendas.py
+│
+├── adapters/            # Integrações externas
+│   ├── bling/
+│   │   ├── bling_client.py
+│   │   └── bling_adapter.py
+│   ├── mercadolivre/
+│   │   ├── ml_client.py
+│   │   └── ml_adapter.py
+│
+├── infra/               # Infraestrutura
+│   ├── logging/
+│   │   └── logger.py
+│   ├── db/
+│   │   └── repositories.py
+│   └── http/
+│       └── http_client.py
+│
+├── config/
+│   └── settings.py
+│
+├── main.py              # Ponto de entrada (CLI / futuro Django)
+└── requirements.txt
