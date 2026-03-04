@@ -26,6 +26,41 @@ from infra.repositorio_produtos_pedido import InsertPedidosProdutos
 Comando para inicar o docker no linux
 sudo systemctl start docker
 
+Como subir um sistema no github 
+
+Sempre abra no caminho do seu arquivo
+
+Ex: cd "/home/otavioleticia/Área de trabalho/LucroAdimin/lucro_admin/"
+
+Crie um .gitignore para não subir aquilo que não queira
+
+Em seguida no terminal execute os seguintes comandos
+
+git add .
+git commit -m "Initial commit"
+git branch -M main
+
+Crie um reposótio no github
+
+git remote add origin https://github.com/[nome do usuario]/[nome do repositório].git
+git push -u origin main
+git status
+git add .
+git push
+
+Para atualizar o que foi acrescentado o alterado
+
+Adicione as mudanças
+
+git add .
+
+Faça um commit (com uma mensagem)
+
+git commit -m "Describe your changes"
+
+Envie para o GitHub
+
+git push
 """
 
 def main():
