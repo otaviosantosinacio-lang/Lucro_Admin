@@ -35,7 +35,7 @@ class Atendidos:
         :return: Endpoint montada corretamente
         :rtype: str
         '''
-        return f'{base_url}/pedidos/vendas?pagina={pagina}&limite=100&idsSituacoes%5B%5D={sit}&dataInicial=2026-03-02&dataFinal=2026-03-02'
+        return f'{base_url}/pedidos/vendas?pagina={pagina}&limite=20&idsSituacoes%5B%5D={sit}&dataInicial={data_inicial}&dataFinal={data_final}'
     
     def get_id_por_pag(self) -> ResultadoGetPaginas:
         """

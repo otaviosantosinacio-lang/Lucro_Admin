@@ -1,6 +1,8 @@
 import logging
 from logging.config import dictConfig
 from pathlib import Path
+from xml.etree.ElementInclude import include
+from fastapi import FastAPI
 
 from infra.logging.config import Logging_Config
 from infra.logging.contexto import generate_correlation_id, correlation_id
@@ -21,47 +23,10 @@ from infra.repositorioMercadoLivre.repositorio_mercadolivre import CredenciaisMe
 
 from infra.repositorio_pedidos import InsertPedidos
 from infra.repositorio_produtos_pedido import InsertPedidosProdutos
-"""
 
-Comando para inicar o docker no linux
-sudo systemctl start docker
+from api import pedidos
 
-Como subir um sistema no github 
 
-Sempre abra no caminho do seu arquivo
-
-Ex: cd "/home/otavioleticia/Área de trabalho/LucroAdimin/lucro_admin/"
-
-Crie um .gitignore para não subir aquilo que não queira
-
-Em seguida no terminal execute os seguintes comandos
-
-git add .
-git commit -m "Initial commit"
-git branch -M main
-
-Crie um reposótio no github
-
-git remote add origin https://github.com/[nome do usuario]/[nome do repositório].git
-git push -u origin main
-git status
-git add .
-git push
-
-Para atualizar o que foi acrescentado o alterado
-
-Adicione as mudanças
-
-git add .
-
-Faça um commit (com uma mensagem)
-
-git commit -m "Describe your changes"
-
-Envie para o GitHub
-
-git push
-"""
 
 def main():
     '''
@@ -116,6 +81,12 @@ def main():
     
     insert_pedidos_produtos = repo_pedidos_produtos.insert_pedidos_produtos(custos_ml.produtos)
 
+
     logger.info('Fluxo finalizado')
 if __name__ == '__main__': 
     main()
+
+
+app = FastAPI()
+
+app.include_router(pedidos.router)

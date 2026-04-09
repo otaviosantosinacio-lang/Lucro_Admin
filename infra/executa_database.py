@@ -114,3 +114,28 @@ def executa_insert_pedidos(execute: str, params):
     except Exception as e:
         logger.exception('Executa Data Base | Erro no INSERT | Query -> %s', execute)
         return None
+    
+def consultadb_multiplos_retornos(execute: str, params: tuple | None = None) -> Any:
+    """
+    consultadb -> Consulta no banco de dados para dados especificos mediante a Query informada 
+    
+    :param execute: Query para consulta no banco de dados.
+    :type execute: str
+
+    """
+    try:
+        with conecta_DB() as conn:
+            with conn.cursor () as cur:
+                cur.execute(execute, params)
+                result = cur.fetchall()
+                logger.info('Executa Data Base | Query -> %s', execute)
+                if result:
+                    param = result
+                    logger.debug('Executa Data Base | Consulta concluida')
+                    return param
+                else:
+                    logger.critical('Executa Data Base | Erro o SELECT não retornou nada | Query -> %s', execute)
+                    return None
+    except Exception as e:
+        logger.exception('Executa Data Base | Erro na consulta usando SELECT | Query -> %s', execute)
+        return None

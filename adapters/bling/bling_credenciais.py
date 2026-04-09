@@ -13,7 +13,7 @@ class Code:
     Class para trocarmos o code por Tokens de maior duração como Access Token e Refresh Token
 
     '''
-    base_url: str = 'https://www.bling.com.br/Api/v3'
+    base_url: str = 'https://www.api.bling.com.br/Api/v3'
 
     def code_request(self, url, headers, data):
         '''
